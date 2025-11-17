@@ -1,24 +1,30 @@
 # SLHA00045 - ESPHome Electric Heater Pilot Module
 
-[![ESPHome](https://img.shields.io/badge/ESPHome-2024.12+-green.svg)](https://esphome.io/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![ESPHome](https://img.shields.io/badge/ESPHome-2025.10+-green.svg)](https://esphome.io/)
+![License](https://img.shields.io/github/license/sitronlabs/ESPHome-Electric-Heater-Pilot)
+![Latest Version](https://img.shields.io/github/v/release/sitronlabs/ESPHome-Electric-Heater-Pilot?color=green)
+![Build Status Status](https://img.shields.io/github/actions/workflow/status/sitronlabs/ESPHome-Electric-Heater-Pilot/ci.yml)
 
-A smart module that enables Home Assistant and other ESPHome-compatible home automation systems to control electric heaters via the **fil pilote** (pilot wire) system, commonly used in France and other European countries.
+![Product Image](doc/product.png)
+
+**[🛒 Buy Now](https://www.sitronlabs.com/r/slha00045-gh)** | [Product Page](https://www.sitronlabs.com/r/slha00045-gh)
+
+A smart module that enables Home Assistant and other ESPHome-compatible home automation systems to control electric heaters via the **fil pilote** (pilot wire) system, used exclusively in France.
 
 ## 📋 Overview
 
-This module transforms any fixed electric heater (compatible with the pilot wire system) into a smart, connected device. It mounts directly onto your heater's junction box, replacing the existing cover, and provides:
+This module transforms any fixed electric heater (compatible with the pilot wire system used in France) into a smart, connected device. It mounts directly onto your heater's junction box, replacing the existing cover, and provides:
 
 - **Smart Thermostat Control**: Full heating control through your home automation system
 - **Temperature & Humidity Monitoring**: Built-in AHT20 sensor for accurate environmental readings
-- **Pilot Wire Control**: Direct control of the heater's pilot wire for different heating modes
+- **Pilot Wire Control**: Direct control of the heater's pilot wire (fil pilote, France only) for different heating modes
 - **Safety Features**: Automatic frost protection mode on startup
 
 ## ✨ Features
 
 - **ESP32-C6** microcontroller with Wi-Fi connectivity
 - **AHT20** temperature and humidity sensor (updates every 10 seconds)
-- **Pilot Wire Control**: 
+- **Pilot Wire Control** (fil pilote, France only): 
   - Comfort mode (heating ON)
   - Frost protection mode (hors-gel)
 - **Visual Feedback**: Green LED indicator for heating status
@@ -73,11 +79,7 @@ esphome upload slha00045.yaml
 
 ### Step 2: Configure Wi-Fi
 
-On first boot, the device will create a fallback hotspot:
-- **SSID**: `SLHA00045 Fallback Hotspot`
-- **Password**: (configured in secrets)
-
-Connect to this hotspot and use the captive portal to configure your Wi-Fi credentials.
+On first boot, the device will create a fallback hotspot. Connect to this hotspot and use the captive portal to configure your Wi-Fi credentials.
 
 Alternatively, use the ESPHome Improv feature via serial or Bluetooth LE.
 
@@ -87,7 +89,6 @@ Alternatively, use the ESPHome Improv feature via serial or Bluetooth LE.
 2. Click **Add Integration**
 3. Search for **ESPHome**
 4. The device should auto-discover, or enter its IP address
-5. Enter the encryption key (if configured)
 
 ## ⚙️ Configuration
 
@@ -95,9 +96,9 @@ Alternatively, use the ESPHome Improv feature via serial or Bluetooth LE.
 
 The main configuration file is `slha00045.yaml`. Key sections:
 
-- **Wi-Fi**: Configure your network credentials
-- **API**: Home Assistant integration settings
-- **OTA**: Over-the-air update settings
+- **Wi-Fi**: Configure your network credentials (via captive portal or ESPHome Improv)
+- **API**: Home Assistant integration (auto-configured)
+- **OTA**: Over-the-air update settings (auto-configured)
 - **Sensors**: AHT20 temperature and humidity
 - **Climate**: Thermostat control logic
 
@@ -124,18 +125,6 @@ climate:
 #### Changing LED Behavior
 
 The green LED (GPIO1) can be customized in the `heat_action` and `idle_action` sections.
-
-### Secrets File
-
-Create a `secrets.yaml` file (not tracked in git) with:
-
-```yaml
-wifi_ssid: "YourWiFiSSID"
-wifi_password: "YourWiFiPassword"
-api_encryption_key: "YourEncryptionKey"
-ota_password: "YourOTAPassword"
-ap_password: "YourHotspotPassword"
-```
 
 ## 🏠 Usage in Home Assistant
 
@@ -184,12 +173,12 @@ automation:
    - Ensure proper wire routing
 5. **Connect Wires**:
    - Connect phase (L) and neutral (N) from the heater
-   - Connect the pilot wire to the module's pilot wire terminals
+   - Connect the pilot wire (fil pilote, France only) to the module's pilot wire terminals
 6. **Power On**: Restore power and verify operation
 
 ### Pilot Wire Modes
 
-The module controls the heater through the pilot wire:
+The module controls the heater through the pilot wire (fil pilote system, used exclusively in France):
 
 - **Comfort Mode**: Both positive and negative half-cycles cut → Full heating
 - **Frost Protection**: Only negative half-cycle → Minimal heating (hors-gel)
@@ -212,8 +201,7 @@ Or use the ESPHome Dashboard's "Install" button.
 
 ### Device Not Connecting to Wi-Fi
 
-- Check credentials in `secrets.yaml`
-- Use the fallback hotspot to reconfigure
+- Use the fallback hotspot to reconfigure Wi-Fi credentials
 - Verify Wi-Fi signal strength at installation location
 
 ### Temperature Readings Incorrect
@@ -224,21 +212,20 @@ Or use the ESPHome Dashboard's "Install" button.
 
 ### Heater Not Responding
 
-- Verify pilot wire connections
-- Check that the heater is compatible with pilot wire control
+- Verify pilot wire (fil pilote) connections
+- Check that the heater is compatible with pilot wire control (France only)
 - Test with a multimeter to confirm pilot wire signals
 
 ### OTA Updates Failing
 
 - Ensure device is on the same network
-- Check OTA password in secrets
 - Verify sufficient free space on device
 
 ## 📚 Resources
 
-- [Product Page](https://www.sitronlabs.com/store/slha00045-esphome-electric-heater-pilot-module-12)
 - [ESPHome Documentation](https://esphome.io/)
-- [Schematic (PDF)](https://www.sitronlabs.com/store/slha00045-esphome-electric-heater-pilot-module-12) (available on product page)
+- [Purchase Product](https://www.sitronlabs.com/r/slha00045-gh)
+- [Schematic (PDF)](https://www.sitronlabs.com/web/content/4183?unique=f5116a5f0a632eebf51473f468c9a14c32217038&download=true)
 
 ## ⚠️ Safety & Disclaimer
 
@@ -255,12 +242,8 @@ Or use the ESPHome Dashboard's "Install" button.
 ## 🤝 Support
 
 - **Issues**: [GitHub Issues](https://github.com/sitronlabs/ESPHome-Electric-Heater-Pilot/issues)
-- **Discord**: [Sitron Labs Discord](https://discord.gg/sitronlabs)
+- **Discord**: [Sitron Labs Discord](https://discord.gg/btnVDeWhfW)
 - **Website**: [Sitron Labs](https://www.sitronlabs.com)
-
-## 📄 License
-
-This firmware is provided as-is. See LICENSE file for details.
 
 ---
 
