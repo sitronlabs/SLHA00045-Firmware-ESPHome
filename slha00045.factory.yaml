@@ -13,7 +13,7 @@ esphome:
 # In this case it is the core yaml file that does not contain the extra things
 # that are provided by this factory yaml file as the user does not need these once adopted.
 dashboard_import:
-  package_import_url: github://sitronlabs/ESPHome-Electric-Heater-Pilot/slha00045.yaml@master
+  package_import_url: github://sitronlabs/SLHA00045-Firmware-ESPHome/slha00045.yaml@master
 
 # Sets up Bluetooth LE (Only on ESP32) to allow the user
 # to provision wifi credentials to the device.
@@ -33,4 +33,4 @@ ota:
 update:
   - platform: http_request
     name: Firmware
-    source: https://github.com/sitronlabs/ESPHome-Electric-Heater-Pilot/releases/latest/download/slha00045.manifest.json
+    source: https://github.com/sitronlabs/SLHA00045-Firmware-ESPHome/releases/latest/download/slha00045.manifest.json
