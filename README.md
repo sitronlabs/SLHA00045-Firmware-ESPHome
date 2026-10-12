@@ -13,7 +13,6 @@ ESPHome firmware for the Sitron Labs SLHA00045 module, a smart Wi-Fi module for 
 
 🛒 Buy now at:
 - [Sitron Labs official store](https://www.sitronlabs.com/r/slha00045-gh)
-- [Leboncoin](https://www.leboncoin.fr/ad/electromenager/2926679003)
 
 ## Overview
 
