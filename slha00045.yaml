@@ -26,14 +26,31 @@ wifi:
 # Portail captif pour la configuration via le hotspot
 captive_portal:
 
-# Définition des sorties GPIO pour le pilotage du fil pilote et LED
-switch:
+# Sorties GPIO pour les LED (verte = chauffage, rouge = erreur capteur)
+output:
   - platform: gpio
     pin: GPIO1
+    id: led_verte_output
+
+  - platform: gpio
+    pin: GPIO11
+    id: led_rouge_output
+
+light:
+  - platform: binary
     name: "LED Verte"
     id: led_verte
+    output: led_verte_output
     internal: true # Non visible dans l'interface Home Assistant
 
+  - platform: binary
+    name: "LED Rouge"
+    id: led_rouge
+    output: led_rouge_output
+    internal: true # Non visible dans l'interface Home Assistant
+
+# Définition des sorties GPIO pour le pilotage du fil pilote
+switch:
   - platform: gpio
     pin: GPIO22
     name: "Fil Pilote N"
@@ -57,6 +74,7 @@ i2c:
 # Capteur de température et d’humidité (AHT20)
 sensor:
   - platform: aht10
+    id: aht20
     variant: AHT20
     temperature:
       name: "Température"
@@ -64,7 +82,23 @@ sensor:
     humidity:
       name: "Humidité"
       id: aht20_humidity
-    update_interval: 10s # Rafraîchissement toutes les 10 secondes
+    update_interval: 5s # Rafraîchissement toutes les 5 secondes
+
+# Clignotement LED rouge si le AHT20 est absent ou en panne
+interval:
+  - interval: 400ms
+    then:
+      - if:
+          condition:
+            lambda: 'return id(aht20).is_failed() || id(aht20).status_has_warning();'
+          then:
+            - light.toggle: led_rouge
+          else:
+            - if:
+                condition:
+                  light.is_on: led_rouge
+                then:
+                  - light.turn_off: led_rouge
 
 # Thermostat basé sur la température (chauffage uniquement)
 climate:
@@ -81,13 +115,13 @@ climate:
     # Actions à effectuer en mode chauffage
     heat_action:
       - switch.turn_off: pilote_n # Demi-alternances positive et négative coupées, mode confort
-      - switch.turn_on: led_verte
+      - light.turn_on: led_verte
 
     # Actions à effectuer en mode repos (arrêt du chauffage)
     idle_action:
-      - switch.turn_off: led_verte
+      - light.turn_off: led_verte
       - switch.turn_on: pilote_n # Demi-alternance negative seule, mode hors-gel
 
-# LED de statut (ESPHome)
+# LED de statut ESPHome (jaune, Wi‑Fi / API)
 status_led:
   pin: GPIO10
