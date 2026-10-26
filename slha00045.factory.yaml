@@ -26,6 +26,8 @@ improv_serial:
 
 # Used to pull OTA updates
 http_request:
+  buffer_size_rx: 4096
+  buffer_size_tx: 1024
 
 ota:
   - platform: http_request
