@@ -26,28 +26,54 @@ wifi:
 # Portail captif pour la configuration via le hotspot
 captive_portal:
 
-# Sorties GPIO pour les LED (verte = chauffage, rouge = erreur capteur)
+# LED verte en PWM (voyant de chauffage), LED rouge en GPIO (erreur capteur)
 output:
-  - platform: gpio
+  - platform: ledc
     pin: GPIO1
     id: led_verte_output
+    zero_means_zero: true
 
   - platform: gpio
     pin: GPIO11
     id: led_rouge_output
 
 light:
-  - platform: binary
+  - platform: monochromatic
     name: "LED Verte"
     id: led_verte
     output: led_verte_output
     internal: true # Non visible dans l'interface Home Assistant
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
 
   - platform: binary
     name: "LED Rouge"
     id: led_rouge
     output: led_rouge_output
     internal: true # Non visible dans l'interface Home Assistant
+
+# Luminosité du voyant vert, mémorisée après redémarrage
+number:
+  - platform: template
+    name: "Voyant de chauffage"
+    id: voyant_chauffage
+    icon: mdi:brightness-percent
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    set_action:
+      - if:
+          condition:
+            light.is_on: led_verte
+          then:
+            - light.turn_on:
+                id: led_verte
+                brightness: !lambda 'return x / 100.0f;'
 
 # Définition des sorties GPIO pour le pilotage du fil pilote
 switch:
@@ -115,7 +141,11 @@ climate:
     # Actions à effectuer en mode chauffage
     heat_action:
       - switch.turn_off: pilote_n # Demi-alternances positive et négative coupées, mode confort
-      - light.turn_on: led_verte
+      - light.turn_on:
+          id: led_verte
+          brightness: !lambda |-
+            if (isnan(id(voyant_chauffage).state)) return 1.0f;
+            return id(voyant_chauffage).state / 100.0f;
 
     # Actions à effectuer en mode repos (arrêt du chauffage)
     idle_action:
