@@ -59,6 +59,31 @@ On first power-up, you need to provide the device with your Wi-Fi credentials. T
 
 Once connected to your network, the module is auto-discovered by Home Assistant as an ESPHome device, where it appears as a thermostat (heat / off) and a temperature and humidity sensor.
 
+## Diagnostics in Home Assistant
+
+After installing firmware containing these diagnostics, the ESPHome device page exposes:
+
+| Entity | Purpose |
+| --- | --- |
+| Durée de fonctionnement | Uptime in seconds; a reset confirms a reboot. |
+| Cause du redémarrage | Reset reason reported by the ESP32, such as power-on, software reset or watchdog. |
+| Signal Wi-Fi | Wi-Fi RSSI in dBm. |
+| Mémoire libre | Available heap in bytes. |
+| Version ESPHome | ESPHome version running on the device. |
+| ESPHome Avertissement / Erreur | Global warning and error flags used by the yellow status LED. |
+| AHT20 Avertissement / Erreur | Sensor warning and error flags, reported separately. |
+| AHT20 Échec initialisation | Whether the sensor component is marked as failed. |
+| AHT20 Âge de la dernière mesure | Seconds since the last non-NaN temperature was received; unknown until the first reading. |
+| Redémarrer | Manual restart button under configuration controls. |
+
+System diagnostics update every 30 seconds, measurement age every 5 seconds, and binary flags on state changes. Measurement timing is held in RAM and resets on reboot.
+
+An AHT20 error flag with fresh measurements and no initialization failure is consistent with a latched runtime error. In ESPHome 2026.10.0, the AHT driver sets an error after exhausting read retries but clears only the warning flag on successful reads. This configuration exposes the flags without clearing them.
+
+The yellow LED flashes approximately four times per second for errors, or once every 1.5 seconds for warnings. Its state can reflect components other than the AHT20. A normal log message at warning level does not necessarily set a component warning flag.
+
+A restart clears RAM diagnostics and interrupts heating control while the device boots. Record the flags before using the restart button. These entities require a firmware update; adoption in Device Builder alone does not add them.
+
 ## Support
 
 * Browse and raise [GitHub Issues](https://github.com/sitronlabs/SLHA00045-Firmware-ESPHome/issues)
