@@ -13,6 +13,21 @@ esp32:
 # Active les logs série/OTA pour le debug
 logger:
 
+# Informations de diagnostic système
+debug:
+  update_interval: 30s
+
+# Horodatage de la dernière mesure AHT20 reçue, sans écriture en flash
+globals:
+  - id: aht20_derniere_mesure_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: aht20_mesure_recue
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
 # Intégration API Home Assistant
 api:
 
@@ -106,10 +121,94 @@ sensor:
     temperature:
       name: "Température"
       id: aht20_temperature
+      on_value:
+        then:
+          - lambda: |-
+              if (!isnan(x)) {
+                id(aht20_derniere_mesure_ms) = millis();
+                id(aht20_mesure_recue) = true;
+              }
     humidity:
       name: "Humidité"
       id: aht20_humidity
     update_interval: 5s # Rafraîchissement toutes les 5 secondes
+
+  # Diagnostic : redémarrages, qualité Wi-Fi et mémoire disponible
+  - platform: uptime
+    name: "Durée de fonctionnement"
+    entity_category: diagnostic
+    update_interval: 30s
+
+  - platform: wifi_signal
+    name: "Signal Wi-Fi"
+    entity_category: diagnostic
+    update_interval: 30s
+
+  - platform: debug
+    free:
+      name: "Mémoire libre"
+      entity_category: diagnostic
+
+  # Permet de distinguer une erreur mémorisée d'un capteur qui ne répond plus
+  - platform: template
+    name: "AHT20 Âge de la dernière mesure"
+    entity_category: diagnostic
+    unit_of_measurement: "s"
+    device_class: duration
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: |-
+      if (!id(aht20_mesure_recue)) return NAN;
+      return static_cast<uint32_t>(millis() - id(aht20_derniere_mesure_ms)) / 1000.0f;
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Cause du redémarrage"
+      entity_category: diagnostic
+
+  - platform: version
+    name: "Version ESPHome"
+    entity_category: diagnostic
+    hide_timestamp: true
+
+# Redémarrage manuel depuis Home Assistant
+button:
+  - platform: restart
+    name: "Redémarrer"
+    entity_category: config
+
+# Drapeaux bruts : ne pas les effacer afin de conserver les indices du défaut
+binary_sensor:
+  - platform: template
+    name: "ESPHome Avertissement"
+    entity_category: diagnostic
+    device_class: problem
+    lambda: 'return (App.get_app_state() & STATUS_LED_WARNING) != 0;'
+
+  - platform: template
+    name: "ESPHome Erreur"
+    entity_category: diagnostic
+    device_class: problem
+    lambda: 'return (App.get_app_state() & STATUS_LED_ERROR) != 0;'
+
+  - platform: template
+    name: "AHT20 Avertissement"
+    entity_category: diagnostic
+    device_class: problem
+    lambda: 'return id(aht20).status_has_warning();'
+
+  - platform: template
+    name: "AHT20 Erreur"
+    entity_category: diagnostic
+    device_class: problem
+    lambda: 'return id(aht20).status_has_error();'
+
+  - platform: template
+    name: "AHT20 Échec initialisation"
+    entity_category: diagnostic
+    device_class: problem
+    lambda: 'return id(aht20).is_failed();'
 
 # Clignotement LED rouge si le AHT20 est absent ou en panne
 interval:
